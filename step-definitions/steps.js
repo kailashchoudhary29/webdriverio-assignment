@@ -41,13 +41,17 @@ Then(
   }
 );
 
-When(/^User Click on first job Id "([^"]*)"$/, async (jobID) => {
-  await browser.pause(5000);
+When(/^User Click on first job Id$/, async () => {
+  await browser.pause(7000);
 
   await browser.switchWindow("Jobs");
 
+  const getFirstID = await (
+    await $("//table//tbody//tr[2]//td[2]//a")
+  ).getText();
+
   let clickOnJobID = await $(
-    `//table//tbody//tr[2]//td[2]//a[contains(@href,'#/job/job/${jobID}')]`
+    `//table//tbody//tr[2]//td[2]//a[contains(@href,'#/job/job/${getFirstID}')]`
   );
 
   await clickOnJobID.click();
@@ -56,8 +60,11 @@ When(/^User Click on first job Id "([^"]*)"$/, async (jobID) => {
 Then(
   /^User able to see Job Details screen for first job id is displayed$/,
   async () => {
-    const firstJobID = await (await $("//h2[text()=' 1174721']")).getText();
-    expect(firstJobID).toEqual("Job 1174721");
+    await browser.pause(4000);
+    await browser.switchWindow("Job");
+
+    const getFirstJobIDValue = await (await $("//h2[1]")).getText();
+    expect(getFirstJobIDValue).toEqual("Job 1174721");
   }
 );
 
@@ -65,8 +72,7 @@ Then(
   /^User verify JobId, State, City, Shift and Specialty Job details screen matches Jobs dashboard for given job id$/,
   async function () {
     const verifyFirstJobState = await $("//span[text()='New Hope']").getText();
-    const verifyFirstJobID = await $("//h2[text()=' 1174721']").getText();
-
+    const verifyFirstJobID = await (await $("//h2[1]")).getText();
     const verifyFirstJobCity = (await $("//*[text()='Minnesota']")).getText();
     const verifyFirstJobSpecialty = (
       await $("//*[text()=' Medical Assistant (MA)']")
@@ -76,7 +82,6 @@ Then(
     ).getText();
 
     expect(verifyFirstJobID).toEqual("Job 1174721");
-
     expect(await verifyFirstJobState).toEqual("New Hope");
     expect(await verifyFirstJobCity).toEqual("Minnesota");
     expect(await verifyFirstJobSpecialty).toEqual("Medical Assistant (MA)");
